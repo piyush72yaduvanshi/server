@@ -5,7 +5,8 @@ const TaskSchema = new mongoose.Schema({
   description: String,
   dueDate: Date,
   category: String,
-  isCompleted: { type: Boolean, default: false }
+  isCompleted: { type: Boolean, default: false },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Task', TaskSchema);

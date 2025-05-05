@@ -1,20 +1,17 @@
-// controllers/taskController.js
 const Task = require('../models/Task.js');
 
-// Create Task
 exports.createTask = async (req, res) => {
   try {
-    const task = await Task.create(req.body);
+    const task = await Task.create({ ...req.body, user: req.userId });
     res.status(201).json(task);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 };
 
-// Get All Tasks
 exports.getTasks = async (req, res) => {
   const { search, category, sort } = req.query;
-  let query = {};
+  let query = { user: req.userId };
 
   if (search) {
     query.$or = [
@@ -23,9 +20,7 @@ exports.getTasks = async (req, res) => {
     ];
   }
 
-  if (category) {
-    query.category = category;
-  }
+  if (category) query.category = category;
 
   let sortOptions = {};
   if (sort === 'dueDate') sortOptions.dueDate = 1;
@@ -40,30 +35,34 @@ exports.getTasks = async (req, res) => {
   }
 };
 
-// Update Task
 exports.updateTask = async (req, res) => {
   try {
-    const task = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const task = await Task.findOneAndUpdate(
+      { _id: req.params.id, user: req.userId },
+      req.body,
+      { new: true }
+    );
+    if (!task) return res.status(404).json({ error: 'Task not found' });
     res.json(task);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 };
 
-// Delete Task
 exports.deleteTask = async (req, res) => {
   try {
-    await Task.findByIdAndDelete(req.params.id);
+    const task = await Task.findOneAndDelete({ _id: req.params.id, user: req.userId });
+    if (!task) return res.status(404).json({ error: 'Task not found' });
     res.json({ message: 'Task deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// Toggle Task Completion
 exports.toggleCompleted = async (req, res) => {
   try {
-    const task = await Task.findById(req.params.id);
+    const task = await Task.findOne({ _id: req.params.id, user: req.userId });
+    if (!task) return res.status(404).json({ error: 'Task not found' });
     task.isCompleted = !task.isCompleted;
     await task.save();
     res.json(task);
