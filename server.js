@@ -11,7 +11,7 @@ connectDB();
 const app = express();
 app.use(cors(
     {
-        origin: ['https://client-ko58j2aug-piyush72yaduvanshis-projects.vercel.app', 'http://localhost:5173',"https://client-alpha-two-81.vercel.app/"],
+        origin: ['https://client-ko58j2aug-piyush72yaduvanshis-projects.vercel.app', 'http://localhost:5173'],
         credentials: true
       }
 ));
